@@ -1,3 +1,10 @@
+/*!
+ * jQuery Plugin : Super Dirty Form
+ * http://projects.codeaspect.com/dirty-form/
+ *
+ * Copyright 2011, Urvaksh Rogers
+ * Dual licensed under the MIT or GPL Version 2 licenses.
+ */
 (function( $ ){
 
 	$.extend($.expr[':'],{
