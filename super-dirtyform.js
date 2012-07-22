@@ -1,7 +1,7 @@
 (function( $ ){
 
 	$.extend($.expr[':'],{
-		function defaultSelected(element){
+		defaultSelected : function (element){
 			return element.defaultSelected;
 		}
 	});
@@ -16,14 +16,14 @@
 		},
 		addNodeToDirtyList : function(container,node){
 			var currentFirst = $(container).prop("nextDirty");
-			$(node).prop("nextDirty",currentFirst).prop("prevDirty",this);
+			$(node).prop("nextDirty",currentFirst).prop("prevDirty",container);
 			return $(container).prop("nextDirty",node);
 		},
 		removeDirtyNodeFromList : function(node){
 			var prevNode = node.prevDirty;
 			var nextNode = node.nextDirty;
 			prevNode.nextDirty=nextNode;
-			nextNode.prevDirty=prevNode;
+			$(nextNode).prop("prevDirty")=prevNode;
 			$(node).prop("prevDirty",null).prop("nextDirty",null);
 		},
 		toList : function(){
@@ -48,7 +48,7 @@
 			$(current).removeProperty("nextDirty").removeProperty("prevDirty");
 		},
 		isEmpty : function(container){
-			container.nextDirty==null?true:false;
+			return container.nextDirty==null?true:false;
 		}
 	}
 
@@ -58,16 +58,16 @@
 		var settings = $.extend({"searchExpression":":not(:submit,:button,[type=hidden])","triggerEvents":""},
 								options||{}
 						);
-						
+		
 		var pluginSettings = {
 			"searchExpression":":input"+settings.searchExpression,
-			"triggerEvents":"focusout,dirtyformchange"+settings.triggerEvents,
+			"triggerEvents":"focusout,dirtyformchange"+(settings.triggerEvents==""?"":","+settings.triggerEvents)
 		}
 		
 		return this.each(function(){
-			this.not(".dirtyChecked")
+			$(this).not(".dirtyChecked")
 				.prop("nextDirty",null)
-				.bind(pluginSettings["triggerEvents"],function(e){
+				.bind("focusout",function(e){
 					var $src=$(e.target);
 					if($src.is(pluginSettings.searchExpression)){
 						var isElementDirty=false;
@@ -92,10 +92,13 @@
 			});
 		},
 		isDirty : function() {
-			return this.each(function(){
-				if(helpers.isEmpty(this)){return true;}
-			}
-			return false;
+			var isEmpty=true;
+			this.each(function(){
+				if(!helpers.isEmpty(this)){
+					isEmpty = isEmpty && false;
+				}
+			});
+			return isEmpty?false:true;
 		},
 		dirtyList : function() { 
 		},
